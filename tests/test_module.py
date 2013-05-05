@@ -19,11 +19,9 @@ class TestModule(unittest.TestCase):
 
     def test_MorpheusDict_is_a_dict(self):
         '''MorpheusDict should look like a dict'''
-        self.assertTrue(issubclass(dict, morpheus.MorpheusDict))
-        self.assertTrue(isinstance({}, morpheus.MorpheusDict),
+        self.assertTrue(issubclass(morpheus.MorpheusDict, dict))
+        self.assertTrue(isinstance(morpheus.MorpheusDict(), dict),
                         msg="MorpheusDict is not being seen as a dict")
-        # TODO: assertDictEqual checks if isinstance(, dict) and fails
-        # self.assertTrue(isinstance(morpheus.MorpheusDict(), dict))
         self.assertEqual(morpheus.MorpheusDict(test=1)['test'], 1)
 
     def test_operations_exists(self):

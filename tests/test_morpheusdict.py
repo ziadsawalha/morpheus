@@ -9,7 +9,7 @@ class TestMorpheusDict(unittest.TestCase):
         """Check that init works like dict does"""
         data = {'key': 'value', 1: 2}
         md = MorpheusDict(data)
-        self.assertDictEqual(md.__dict__(), data)
+        self.assertDictEqual(md, data)
 
     def test_basic_operations(self):
         """Test basic dictionary-type operations"""
@@ -27,16 +27,16 @@ class TestMorpheusDict(unittest.TestCase):
 
     def test_empty_args(self):
         md = MorpheusDict(key='value')
-        self.assertDictEqual(md.__dict__(), dict(key='value'))
+        self.assertDictEqual(md, dict(key='value'))
 
     def test_empty_kwargs(self):
         template = dict(key='value')
         md = MorpheusDict(template)
-        self.assertDictEqual(md.__dict__(), template)
+        self.assertDictEqual(md, template)
 
     def test_empty_args_and_kwargs(self):
         md = MorpheusDict()
-        self.assertDictEqual(md.__dict__(), {})
+        self.assertDictEqual(md, {})
 
 
 if __name__ == '__main__':

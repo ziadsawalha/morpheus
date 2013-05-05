@@ -1,18 +1,22 @@
 '''
 The main morpheus dict substitute class lives here: MorpheusDict
 '''
-import __builtin__
 from abc import ABCMeta
-import collections
 import inspect
 import types
 
 from morpheus.operations import SchemaOp
 
 
-class MorpheusDict(collections.MutableMapping):
+class MorpheusDict(dict):
     ''' DOCS '''
+
     __metaclass__ = ABCMeta
+
+    def __new__(cls, *args, **kwargs):
+        obj = dict.__new__(cls)
+        obj.__init__(*args, **kwargs)
+        return obj
 
     #
     # dict emulation methods
@@ -22,38 +26,20 @@ class MorpheusDict(collections.MutableMapping):
         self.definitions = self.get_schema_definitions()
         self.parse_schema_definitions(self.definitions)
 
-        obj = __builtin__.dict(*args, **kwargs)
+        dict.__init__(self, *args, **kwargs)
         if hasattr(self.__class__, '__schema__'):
-            self.validate(obj)
-        self.__data = obj
-
-    def __len__(self):
-        return len(self.__data)
-
-    def __contains__(self, key):
-        return key in self.__data
-
-    def __iter__(self):
-        return iter(self.__data)
-
-    def __getitem__(self, key):
-        return self.__data[self.__keytransform__(key)]
+            self.validate(self)
 
     def __setitem__(self, key, value):
-        self.__data[self.__keytransform__(key)] = value
-
-    def __delitem__(self, k):
-        del self.__data[k]
+        if (hasattr(self, 'allowed') and self.allowed and
+                key not in self.allowed):
+            raise AttributeError("'%s' is not permitted on an object of type "
+                                 "'%s'" % (key, self.__class__.__name__))
+        dict.__setitem__(self, self.__keytransform__(key), value)
 
     @staticmethod
     def __keytransform__(key):
         return key
-
-    def __repr__(self):
-        return self.__data.__repr__()
-
-    def __dict__(self):
-        return self.__data
 
     #
     # Schema methods
@@ -126,7 +112,7 @@ class MorpheusDict(collections.MutableMapping):
             raise AttributeError(msg % (', '.join(extras),
                                         self.__class__.__name__))
 
-        for key in data.iterkeys():
+        for key in data.keys():
             definition = self.definitions[key]
             if issubclass(definition.__class__, SchemaOp):
                 definition.execute(data, key)
@@ -136,5 +122,3 @@ def get_class_vars(cls):
     '''Get unhidden variables defined on a class'''
     return [name for name, obj in cls.__dict__.iteritems()
             if not name.startswith("__") and not inspect.isroutine(obj)]
-
-MorpheusDict.register(dict)  # pylint: disable=E1101
