@@ -1,9 +1,11 @@
 '''
 The main morpheus dict substitute class lives here: MorpheusDict
 '''
+import __builtin__
 from abc import ABCMeta
 import collections
 import inspect
+import types
 
 from morpheus.operations import SchemaOp
 
@@ -20,7 +22,7 @@ class MorpheusDict(collections.MutableMapping):
         self.definitions = self.get_schema_definitions()
         self.parse_schema_definitions(self.definitions)
 
-        obj = dict(*args, **kwargs)
+        obj = __builtin__.dict(*args, **kwargs)
         if hasattr(self.__class__, '__schema__'):
             self.validate(obj)
         self.__data = obj
@@ -72,21 +74,23 @@ class MorpheusDict(collections.MutableMapping):
 
         '''
         schema = getattr(cls, '__schema__', None) or {}
+        item_definitions = {}
         if isinstance(schema, type):
-            item_definitions = {}
             for key in get_class_vars(schema):
                 item_definitions[key] = getattr(schema, key)
         elif isinstance(schema, list):
-            item_definitions = {}
             for key in schema:
                 item_definitions[key] = object
+        elif isinstance(schema, (types.TypeType, types.ClassType)):
+            for key in get_class_vars(schema):
+                item_definitions[key] = getattr(schema, key)
         else:
             try:
                 iter(schema)
                 item_definitions = schema
             except TypeError:
-                raise TypeError("__schema__ must be an iterable list, dict or "
-                                "morpheus.Schema class")
+                raise TypeError("__schema__ must be an iterable list, dict, "
+                                "class or morpheus.Schema class")
         return item_definitions
 
     @classmethod

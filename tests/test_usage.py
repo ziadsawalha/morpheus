@@ -25,6 +25,13 @@ class Woo(dict):
     )
 
 
+class Yee(dict):
+    class __schema__:
+        id = int
+        name = basestring
+        status = basestring
+
+
 class TestSimpleValidation(unittest.TestCase):
     def test_fail_on_bad_field(self):
         self.assertRaisesRegexp(AttributeError,
@@ -50,6 +57,13 @@ class TestSimpleValidation(unittest.TestCase):
                                 "'sneaky' is not a permitted attribute for a "
                                 "'Woo'",
                                 Woo,
+                                sneaky='git blame someone for this!')
+
+    def test_schema_as_subclass(self):
+        self.assertRaisesRegexp(AttributeError,
+                                "'sneaky' is not a permitted attribute for a "
+                                "'Yee'",
+                                Yee,
                                 sneaky='git blame someone for this!')
 
 
