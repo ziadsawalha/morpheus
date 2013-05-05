@@ -1,0 +1,4 @@
+[run]
+branch = True
+source = morpheus
+omit = tests/*, */nose/*

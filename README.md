@@ -34,20 +34,32 @@ $ pip install morpheus
 Here is a simple example of a schema definition on a dict-based class.
 
 ```python
-# Comment this line out to completely disable morpheus. No code changes needed.
+# Let's import MorpheusDict as dict in our module
 from morpheus import MorpheusDict as dict
+# Note: Comment this last line out to completely disable morpheus. No code
+# changes needed.
 
 
+#
+# Let's limit the keys allowed on our dict-based class by adding a __schema__
+# entry
+#
 class Foo(dict):
     __schema__ = ['id', 'name', 'state']
 
+#
+# Now let's make sure this really works
+#
 try:
     Foo(sneaky='git blame someone for this!')
 except AttributeError as exc:
     print "Thank you, Morpheus! You caught an error: %s" % exc
 
-# Prints: Thank you, Morpheus! You caught an error: 'sneaky' is not a permitted
-#         attribute for a 'Foo'
+# Prints:
+#
+# Thank you, Morpheus! You caught an error: 'sneaky' is not a permitted
+# attribute for a 'Foo'
+#
 ```
 
 
