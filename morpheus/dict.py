@@ -3,6 +3,7 @@ The main morpheus dict substitute class lives here: MorpheusDict
 '''
 from abc import ABCMeta
 import collections
+import inspect
 
 
 class MorpheusDict(collections.MutableMapping):
@@ -59,17 +60,31 @@ class MorpheusDict(collections.MutableMapping):
 
         Finds the fields defined in the schema.
 
-        The __schema__ attribute of a class can contains a list of allowed
-        keys.
+        The __schema__ attribute of a class can contain a list, a dict, or a
+        class. A list we assume contains a list of allowed keys. A dict we
+        assume has a valid schema dict. A class we assume has variables for
+        definitions.
 
         :returns dict: keys are allowed item keys and values are the schema
                        definitions of those items
 
         '''
         schema = getattr(cls, '__schema__', None) or {}
-        item_definitions = {}
-        for key in schema:
-            item_definitions[key] = object
+        if isinstance(schema, type):
+            item_definitions = {}
+            for key in get_class_vars(schema):
+                item_definitions[key] = getattr(schema, key)
+        elif isinstance(schema, list):
+            item_definitions = {}
+            for key in schema:
+                item_definitions[key] = object
+        else:
+            try:
+                iter(schema)
+                item_definitions = schema
+            except TypeError:
+                raise TypeError("__schema__ must be an iterable list, dict or "
+                                "morpheus.Schema class")
         return item_definitions
 
     @classmethod
@@ -104,5 +119,12 @@ class MorpheusDict(collections.MutableMapping):
                 msg = "%s are not permitted attributes for a '%s'"
             raise AttributeError(msg % (', '.join(extras),
                                         self.__class__.__name__))
+
+
+
+def get_class_vars(cls):
+    '''Get unhidden variables defined on a class'''
+    return [name for name, obj in cls.__dict__.iteritems()
+            if not name.startswith("__") and not inspect.isroutine(obj)]
 
 MorpheusDict.register(dict)  # pylint: disable=E1101

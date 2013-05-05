@@ -37,8 +37,9 @@ Here is a simple example of a schema definition on a dict-based class.
 # Comment this line out to completely disable morpheus. No code changes needed.
 from morpheus import MorpheusDict as dict
 
+
 class Foo(dict):
-   __schema__ = ['id', 'name', 'state']
+    __schema__ = ['id', 'name', 'state']
 
 try:
     Foo(sneaky='git blame someone for this!')
