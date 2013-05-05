@@ -1,4 +1,4 @@
-Morpheus
+Morpheus [![Build Status](https://travis-ci.org/ziadsawalha/morpheus.png)](https://travis-ci.org/ziadsawalha/morpheus) [![Coverage Status](https://coveralls.io/repos/ziadsawalha/morpheus/badge.png?branch=master)](https://coveralls.io/r/ziadsawalha/morpheus)
 ========
 
 Morpheus helps you define schemas for your dict-based classes and perform validation, migration, and generate documentation. It tries to make this normally unfun task painless and easy.
