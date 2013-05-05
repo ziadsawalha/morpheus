@@ -5,6 +5,29 @@ from abc import ABCMeta
 import inspect
 import types
 
+
+try:
+    import yaml
+    from yaml import SafeDumper, Dumper
+    from yaml.representer import SafeRepresenter
+
+    REGISTERED_CLASSES = []
+
+    def register_yaml_representer(cls):
+        ''' DOCS '''
+        global REGISTERED_CLASSES
+        if cls in REGISTERED_CLASSES:
+            return
+        yaml.add_representer(cls, SafeRepresenter.represent_dict,
+                             Dumper=SafeDumper)
+        yaml.add_representer(cls, SafeRepresenter.represent_dict,
+                             Dumper=Dumper)
+        REGISTERED_CLASSES.append(cls)
+except ImportError:
+    def register_yaml_representer(cls):
+        '''noop function for when YAML is not available'''
+        pass
+
 from morpheus.operations import SchemaOp
 
 
@@ -14,6 +37,7 @@ class MorpheusDict(dict):
     __metaclass__ = ABCMeta
 
     def __new__(cls, *args, **kwargs):
+        register_yaml_representer(cls)
         obj = dict.__new__(cls)
         obj.__init__(*args, **kwargs)
         return obj
