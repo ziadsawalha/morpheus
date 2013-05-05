@@ -5,6 +5,8 @@ from abc import ABCMeta
 import collections
 import inspect
 
+from morpheus.operations import SchemaOp
+
 
 class MorpheusDict(collections.MutableMapping):
     ''' DOCS '''
@@ -120,6 +122,10 @@ class MorpheusDict(collections.MutableMapping):
             raise AttributeError(msg % (', '.join(extras),
                                         self.__class__.__name__))
 
+        for key in data.iterkeys():
+            definition = self.definitions[key]
+            if issubclass(definition.__class__, SchemaOp):
+                definition.execute(data, key)
 
 
 def get_class_vars(cls):
