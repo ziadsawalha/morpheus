@@ -32,6 +32,28 @@ class Yee(dict):
         status = basestring
 
 
+class TestInstantiation(unittest.TestCase):
+    '''Test that we can define schema using the four methods above'''
+    def test_schema_as_list(self):
+        md = Foo(id=1)
+        self.assertEqual(md['id'], 1)
+
+    def test_schema_as_dict(self):
+        md = Bar(id=1)
+        self.assertEqual(md['id'], 1)
+
+    def test_schema_as_Schema(self):
+        md = Woo(id=1)
+        self.assertEqual(md['id'], 1)
+
+    def test_schema_as_class(self):
+        md = Yee(id=1)
+        self.assertEqual(md['id'], 1)
+
+    def test_invalid_schema(self):
+        self.assertRaises(TypeError, Womp, id=1)
+
+
 class TestSimpleValidation(unittest.TestCase):
     def test_fail_on_bad_field(self):
         self.assertRaisesRegexp(AttributeError,

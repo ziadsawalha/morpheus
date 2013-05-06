@@ -5,6 +5,6 @@
 __all__ = ['MorpheusDict', 'operations', 'Schema']
 
 from .dict import MorpheusDict
+from .schema import Schema
 from morpheus import operations
 
-from __builtin__ import dict as Schema

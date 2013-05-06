@@ -20,6 +20,7 @@ def register_yaml_representer(cls):
     yaml.add_representer(cls, representer.SafeRepresenter.represent_dict,
                          Dumper=SafeDumper)
 
+from morpheus.schema import Schema
 from morpheus.operations import SchemaOp
 
 
@@ -96,9 +97,9 @@ class MorpheusDict(dict):
         '''
         schema = getattr(cls, '__schema__', None) or {}
         item_definitions = {}
-        if isinstance(schema, type):
-            for key in get_class_vars(schema):
-                item_definitions[key] = getattr(schema, key)
+        if isinstance(schema, Schema):
+            for key, value in schema.iteritems():
+                item_definitions[key] = value
         elif isinstance(schema, list):
             for key in schema:
                 item_definitions[key] = object

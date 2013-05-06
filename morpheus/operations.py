@@ -1,6 +1,6 @@
 '''
 
-Chainable Ooperations morpheus supports in a schema definition
+Chainable Operations morpheus supports in a schema definition
 
 Example:
 
