@@ -2,6 +2,7 @@
 import unittest
 
 from morpheus import MorpheusDict
+from morpheus.dict import get_class_vars
 
 
 class TestMorpheusDict(unittest.TestCase):
@@ -37,6 +38,27 @@ class TestMorpheusDict(unittest.TestCase):
     def test_empty_args_and_kwargs(self):
         md = MorpheusDict()
         self.assertDictEqual(md, {})
+
+    def test_get_class_vars_empty(self):
+        self.assertEqual(get_class_vars(dict), [])
+
+    def test_get_class_vars(self):
+        class MDTest():
+            an_id = int
+        self.assertEqual(get_class_vars(MDTest), ['an_id'])
+
+
+class MDSubclass(MorpheusDict):
+    '''Used for subclass trsting'''
+    __schema__ = ['id']
+
+
+class TestMorpheusDictSubclass(unittest.TestCase):
+    def test_setitem(self):
+        md = MDSubclass(id=1)
+        expect = "'not_id' is not permitted on an object of type 'MDSubclass'"
+        self.assertRaisesRegexp(AttributeError, expect, md.__setitem__,
+                                "not_id", 1)
 
 
 if __name__ == '__main__':

@@ -32,6 +32,11 @@ class Yee(dict):
         status = basestring
 
 
+class Womp(dict):
+    ''' Fail '''
+    __schema__ = 2
+
+
 class TestInstantiation(unittest.TestCase):
     '''Test that we can define schema using the four methods above'''
     def test_schema_as_list(self):
@@ -87,6 +92,16 @@ class TestSimpleValidation(unittest.TestCase):
                                 "'Yee'",
                                 Yee,
                                 sneaky='git blame someone for this!')
+
+
+class TestOtherValidation(unittest.TestCase):
+    def test_fail_on_multiples(self):
+        self.assertRaisesRegexp(AttributeError,
+                                "second, first are not permitted attributes "
+                                "for a 'Foo'",
+                                Foo,
+                                first="error",
+                                second="mistake")
 
 
 if __name__ == '__main__':
