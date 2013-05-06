@@ -4,28 +4,21 @@ The main morpheus dict substitute class lives here: MorpheusDict
 import inspect
 import types
 
-
 try:
     import yaml
     from yaml import SafeDumper, Dumper
-    from yaml.representer import SafeRepresenter
+    from yaml import representer
+    YAML_DETECTED = True
+except ImportError:  # pragma: nocover
+    YAML_DETECTED = False
 
-    REGISTERED_CLASSES = []
 
-    def register_yaml_representer(cls):
-        ''' DOCS '''
-        global REGISTERED_CLASSES
-        if cls in REGISTERED_CLASSES:
-            return
-        yaml.add_representer(cls, SafeRepresenter.represent_dict,
-                             Dumper=SafeDumper)
-        yaml.add_representer(cls, SafeRepresenter.represent_dict,
-                             Dumper=Dumper)
-        REGISTERED_CLASSES.append(cls)
-except ImportError:
-    def register_yaml_representer(cls):
-        '''noop function for when YAML is not available'''
-        pass
+def register_yaml_representer(cls):
+    ''' DOCS '''
+    yaml.add_representer(cls, representer.Representer.represent_dict,
+                         Dumper=Dumper)
+    yaml.add_representer(cls, representer.SafeRepresenter.represent_dict,
+                         Dumper=SafeDumper)
 
 from morpheus.operations import SchemaOp
 
@@ -34,6 +27,7 @@ class MorpheusDictSubclassDetector(type):
     '''Metaclass for MorpheusDict to detect when MorpheusDict is subclassed'''
     def __new__(mcs, *args, **kwargs):
         new_type = type.__new__(mcs, *args, **kwargs)
+        register_yaml_representer(new_type)
         if args[0] != "MorpheusDict":
             MorpheusDict.__initsubclass__(new_type)
         return type.__new__(mcs, *args, **kwargs)
@@ -44,14 +38,19 @@ class MorpheusDict(dict):
     __metaclass__ = MorpheusDictSubclassDetector
 
     def __new__(cls, *args, **kwargs):
-        register_yaml_representer(cls)
         obj = dict.__new__(cls)
         obj.__init__(*args, **kwargs)
+        # TODO: don't register each one, but until I figure out how pyyaml
+        # detects classes I need to:
+        if YAML_DETECTED is True:
+            register_yaml_representer(cls)
         return obj
 
     @classmethod
     def __initsubclass__(cls, subclass):
         '''Called when MorpheusDict has been subclassed'''
+        # I wish we could do this here, but PyYAML dumping then fails
+        # register_yaml_representer(cls)
         pass
 
     #
