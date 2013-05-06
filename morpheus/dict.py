@@ -1,7 +1,6 @@
 '''
 The main morpheus dict substitute class lives here: MorpheusDict
 '''
-from abc import ABCMeta
 import inspect
 import types
 
@@ -31,16 +30,29 @@ except ImportError:
 from morpheus.operations import SchemaOp
 
 
+class MorpheusDictSubclassDetector(type):
+    '''Metaclass for MorpheusDict to detect when MorpheusDict is subclassed'''
+    def __new__(mcs, *args, **kwargs):
+        new_type = type.__new__(mcs, *args, **kwargs)
+        if args[0] != "MorpheusDict":
+            MorpheusDict.__initsubclass__(new_type)
+        return type.__new__(mcs, *args, **kwargs)
+
+
 class MorpheusDict(dict):
     ''' DOCS '''
-
-    __metaclass__ = ABCMeta
+    __metaclass__ = MorpheusDictSubclassDetector
 
     def __new__(cls, *args, **kwargs):
         register_yaml_representer(cls)
         obj = dict.__new__(cls)
         obj.__init__(*args, **kwargs)
         return obj
+
+    @classmethod
+    def __initsubclass__(cls, subclass):
+        '''Called when MorpheusDict has been subclassed'''
+        pass
 
     #
     # dict emulation methods
