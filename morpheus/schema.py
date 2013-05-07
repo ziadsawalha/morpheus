@@ -14,5 +14,5 @@ class Foo(dict):
 
 
 class Schema(dict):
-    ''' TODO '''
+    ''' DOCS '''
     pass

@@ -62,6 +62,30 @@ except AttributeError as exc:
 #
 ```
 
+Here is a more involved example, demonstrating multiple schemas, validation, and migration.
+
+```python
+
+from morpheus import MorpheusDict, Schema, Defn
+
+class Foo(dict):
+    __schema__ = Schema(
+        id=Defn(int, required=True),
+        statoos=basestring,
+        state=as_of(0.7).is_replaced_by('statoos')
+    )
+
+print Foo({'id': 1, 'state': 'DEPRECATED'})
+
+# Prints:
+#
+# {'id': 1, 'statoos': 'DEPRECATED'}
+#
+
+Foo({})
+# Generates ValidationError("Missing required key 'id'")
+
+```
 
 ### Contributing ###
 

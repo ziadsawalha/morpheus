@@ -119,7 +119,8 @@ class MorpheusDict(dict):
             except TypeError:
                 raise TypeError("__schema__ must be an iterable list, dict, "
                                 "class or morpheus.Schema class")
-        return item_definitions
+
+        return normalize_definitions(item_definitions)
 
     @classmethod
     def parse_schema_definitions(cls, definitions):
@@ -175,3 +176,13 @@ def get_class_vars(cls):
     '''Get unhidden variables defined on a class'''
     return [name for name, obj in cls.__dict__.iteritems()
             if not name.startswith("__") and not inspect.isroutine(obj)]
+
+
+def normalize_definitions(definitions):
+    '''Converts all definitions to Defn types'''
+    if definitions:
+        for key, definition in definitions.items():
+            if isinstance(definition, SchemaOp):
+                continue
+            definitions[key] = Defn(definition)
+    return definitions

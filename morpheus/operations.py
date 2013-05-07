@@ -45,6 +45,13 @@ class SchemaOp(object):
             elif command == 'is_required':
                 if key not in data:
                     raise ValidationError("'%s' is required" % key)
+            elif command == 'is_type':
+                if key not in data:
+                    return
+                value = data[key]
+                if not isinstance(value, args[0]):
+                    raise ValidationError("'%s' is not a(n) %s" % (key,
+                                          args[0].__name__))
 
 
 # pylint: disable=C0103
@@ -53,7 +60,17 @@ class as_of(SchemaOp):
     pass
 
 
+class is_type(SchemaOp):
+    ''' DOCS '''
+    pass
+
+
 class is_required(SchemaOp):
+    ''' DOCS '''
+    pass
+
+
+class is_replaced_by(SchemaOp):
     ''' DOCS '''
     pass
 
