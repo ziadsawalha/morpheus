@@ -108,11 +108,11 @@ class DictTest(unittest.TestCase):
         #self.assertEqual(repr(dict(a=1).items()), "dict_items([('a', 1)])")
 
     def test_contains(self):
-        d = {}
+        d = dict()
         self.assertNotIn('a', d)
         self.assertFalse('a' in d)
         self.assertTrue('a' not in d)
-        d = {'a': 1, 'b': 2}
+        d = dict({'a': 1, 'b': 2})
         self.assertIn('a', d)
         self.assertIn('b', d)
         self.assertNotIn('c', d)
@@ -120,13 +120,13 @@ class DictTest(unittest.TestCase):
         self.assertRaises(TypeError, d.__contains__)
 
     def test_len(self):
-        d = {}
+        d = dict()
         self.assertEqual(len(d), 0)
-        d = {'a': 1, 'b': 2}
+        d = dict({'a': 1, 'b': 2})
         self.assertEqual(len(d), 2)
 
     def test_getitem(self):
-        d = {'a': 1, 'b': 2}
+        d = dict({'a': 1, 'b': 2})
         self.assertEqual(d['a'], 1)
         self.assertEqual(d['b'], 2)
         d['c'] = 3
@@ -144,7 +144,7 @@ class DictTest(unittest.TestCase):
             def __hash__(self):
                 return 24
 
-        d = {}
+        d = dict()
         d[BadEq()] = 42
         self.assertRaises(KeyError, d.__getitem__, 23)
 
@@ -164,14 +164,14 @@ class DictTest(unittest.TestCase):
         self.assertRaises(Exc, d.__getitem__, x)
 
     def test_clear(self):
-        d = {1:1, 2:2, 3:3}
+        d = dict({1:1, 2:2, 3:3})
         d.clear()
         self.assertEqual(d, {})
 
         self.assertRaises(TypeError, d.clear, None)
 
     def test_update(self):
-        d = {}
+        d = dict()
         d.update({1:100})
         d.update({2:20})
         d.update({1:1, 2:2, 3:3})
@@ -248,7 +248,7 @@ class DictTest(unittest.TestCase):
 
     def test_fromkeys(self):
         self.assertEqual(dict.fromkeys('abc'), {'a':None, 'b':None, 'c':None})
-        d = {}
+        d = dict()
         self.assertIsNot(d.fromkeys('abc'), d)
         self.assertEqual(d.fromkeys('abc'), {'a':None, 'b':None, 'c':None})
         self.assertEqual(d.fromkeys((4,5),0), {4:0, 5:0})
@@ -307,16 +307,16 @@ class DictTest(unittest.TestCase):
         """
 
     def test_copy(self):
-        d = {1:1, 2:2, 3:3}
+        d = dict({1:1, 2:2, 3:3})
         self.assertEqual(d.copy(), {1:1, 2:2, 3:3})
         self.assertEqual({}.copy(), {})
         self.assertRaises(TypeError, d.copy, None)
 
     def test_get(self):
-        d = {}
+        d = dict()
         self.assertIs(d.get('c'), None)
         self.assertEqual(d.get('c', 3), 3)
-        d = {'a': 1, 'b': 2}
+        d = dict({'a': 1, 'b': 2})
         self.assertIs(d.get('c'), None)
         self.assertEqual(d.get('c', 3), 3)
         self.assertEqual(d.get('a'), 1)
@@ -326,7 +326,7 @@ class DictTest(unittest.TestCase):
 
     def test_setdefault(self):
         # dict.setdefault()
-        d = {}
+        d = dict()
         self.assertIs(d.setdefault('key0'), None)
         d.setdefault('key0', [])
         self.assertIs(d.setdefault('key0'), None)
@@ -416,12 +416,12 @@ class DictTest(unittest.TestCase):
                 self.assertFalse(a)
                 self.assertFalse(b)
 
-        d = {}
+        d = dict()
         self.assertRaises(KeyError, d.popitem)
 
     def test_pop(self):
         # Tests for pop with specified key
-        d = {}
+        d = dict()
         k, v = 'abc', 'def'
         d[k] = v
         self.assertRaises(KeyError, d.pop, 'ghi')
@@ -454,7 +454,7 @@ class DictTest(unittest.TestCase):
 
     def test_mutating_iteration(self):
         # changing dict size during iteration
-        d = {}
+        d = dict()
         d[1] = 1
         with self.assertRaises(RuntimeError):
             for i in d:
@@ -481,7 +481,7 @@ class DictTest(unittest.TestCase):
 
         key1 = NastyKey(1)
         key2 = NastyKey(2)
-        d = {key1: 1}
+        d = dict({key1: 1})
         NastyKey.mutate_dict = (d, key1)
         d[key2] = 2
         self.assertEqual(d, {key2: 2})
@@ -578,8 +578,8 @@ class DictTest(unittest.TestCase):
             def __eq__(self, other):
                 raise RuntimeError
 
-        d1 = {1: C()}
-        d2 = {1: C()}
+        d1 = dict({1: C()})
+        d2 = dict({1: C()})
         with self.assertRaises(RuntimeError):
             d1.items() == d2.items()
         with self.assertRaises(RuntimeError):
@@ -684,7 +684,7 @@ class DictTest(unittest.TestCase):
 
     def test_tuple_keyerror(self):
         # SF #1576657
-        d = {}
+        d = dict()
         with self.assertRaises(KeyError) as c:
             d[(1,)]
         self.assertEqual(c.exception.args, ((1,),))
@@ -727,7 +727,7 @@ class DictTest(unittest.TestCase):
         # exactly the right order, and I can't think of a randomized approach
         # that would be *likely* to hit a failing case in reasonable time.
 
-        d = {}
+        d = dict()
         for i in range(5):
             d[i] = i
         for i in range(5):
@@ -746,7 +746,7 @@ class DictTest(unittest.TestCase):
                 if resizing:
                     d.clear()
                 return False
-        d = {}
+        d = dict()
         resizing = False
         d[X()] = 1
         d[X()] = 2
@@ -763,7 +763,7 @@ class DictTest(unittest.TestCase):
         with self.assertRaises(ZeroDivisionError):
             d = {'a': 1 // 0, 'b': None, 'c': None, 'd': None, 'e': None,
                  'f': None, 'g': None, 'h': None}
-        d = {}
+        d = dict()
 
     def test_container_iterator(self):
         # Bug #3680: tp_traverse was not implemented for dictiter and
