@@ -1,8 +1,8 @@
 # pylint: disable=C0103,C0111,R0903,R0904,W0212,W0232
 import unittest
 
-from morpheus import MorpheusDict
 from morpheus.dict import get_class_vars
+from morpheus import MorpheusDict, Defn
 
 
 class TestMorpheusDict(unittest.TestCase):

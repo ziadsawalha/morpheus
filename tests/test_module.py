@@ -40,6 +40,11 @@ class TestModule(unittest.TestCase):
         self.assertTrue(hasattr(morpheus, 'Schema'), msg="'Schema' does not "
                         "exist in the morpheus package")
 
+    def test_exceptions_exists(self):
+        '''Check that exceptions exists in the package namespace'''
+        self.assertTrue(hasattr(morpheus, 'exceptions'), msg="'exceptions' "
+                        "does not exist in the morpheus package")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -20,8 +20,9 @@ def register_yaml_representer(cls):
     yaml.add_representer(cls, representer.SafeRepresenter.represent_dict,
                          Dumper=SafeDumper)
 
+from morpheus.exceptions import ValidationError
 from morpheus.schema import Schema
-from morpheus.operations import SchemaOp
+from morpheus.operations import SchemaOp, Defn
 
 
 class MorpheusDictSubclassDetector(type):
@@ -127,7 +128,8 @@ class MorpheusDict(dict):
 
         '''
         cls.allowed = set(definitions.keys())
-        cls.required = set([])
+        cls.required = set([k for k, v in definitions.items()
+                            if v.required is True])
 
     def validate(self, data):
         '''
@@ -147,6 +149,16 @@ class MorpheusDict(dict):
                 msg = "%s are not permitted attributes for a '%s'"
             raise AttributeError(msg % (', '.join(extras),
                                         self.__class__.__name__))
+
+        if self.required:
+            missing = self.required - set(data.keys())
+            if missing:
+                if len(missing) == 1:
+                    raise ValidationError("Missing required key '%s'" %
+                                          missing.pop())
+                else:
+                    raise ValidationError("Missing required keys: %s" %
+                                          ', '.join(missing))
 
         for key in data.keys():
             definition = self.definitions[key]
