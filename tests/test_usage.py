@@ -2,7 +2,7 @@
 import unittest
 
 from morpheus import MorpheusDict as dict  # pylint: disable=W0622
-from morpheus import Schema
+from morpheus import Schema, exceptions
 
 
 class Foo(dict):
@@ -62,7 +62,7 @@ class TestInstantiation(unittest.TestCase):
 
 class TestSimpleValidation(unittest.TestCase):
     def test_fail_on_bad_field(self):
-        self.assertRaisesRegexp(AttributeError,
+        self.assertRaisesRegexp(exceptions.ValidationError,
                                 "'sneaky' is not a permitted attribute for a "
                                 "'Foo'",
                                 Foo,
@@ -74,21 +74,21 @@ class TestSimpleValidation(unittest.TestCase):
         self.assertEqual(obj, expected)
 
     def test_schema_as_dict(self):
-        self.assertRaisesRegexp(AttributeError,
+        self.assertRaisesRegexp(exceptions.ValidationError,
                                 "'sneaky' is not a permitted attribute for a "
                                 "'Bar'",
                                 Bar,
                                 sneaky='git blame someone for this!')
 
     def test_schema_as_class(self):
-        self.assertRaisesRegexp(AttributeError,
+        self.assertRaisesRegexp(exceptions.ValidationError,
                                 "'sneaky' is not a permitted attribute for a "
                                 "'Woo'",
                                 Woo,
                                 sneaky='git blame someone for this!')
 
     def test_schema_as_subclass(self):
-        self.assertRaisesRegexp(AttributeError,
+        self.assertRaisesRegexp(exceptions.ValidationError,
                                 "'sneaky' is not a permitted attribute for a "
                                 "'Yee'",
                                 Yee,
@@ -97,7 +97,7 @@ class TestSimpleValidation(unittest.TestCase):
 
 class TestOtherValidation(unittest.TestCase):
     def test_fail_on_multiples(self):
-        self.assertRaisesRegexp(AttributeError,
+        self.assertRaisesRegexp(exceptions.ValidationError,
                                 "second, first are not permitted attributes "
                                 "for a 'Foo'",
                                 Foo,

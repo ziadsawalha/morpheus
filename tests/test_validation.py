@@ -34,5 +34,17 @@ class TestRequired(unittest.TestCase):
         self.assertRaisesRegexp(exceptions.ValidationError, regex, Bar)
 
 
+class TestInspection(unittest.TestCase):
+    '''Test that we can inspect data without raising errors'''
+
+    def test_inspection_full(self):
+        errors = Bar.inspect({'id': 'string'})
+        self.assertEqual(len(errors), 2)
+
+    def test_inspection_fast(self):
+        errors = Bar.inspect({'id': 'string'}, fail_fast=True)
+        self.assertEqual(len(errors), 1)
+
+
 if __name__ == '__main__':
     unittest.main()

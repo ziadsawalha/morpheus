@@ -79,7 +79,7 @@ class MorpheusDict(dict):
     def __init__(self, *args, **kwargs):
         dict.__init__(self, *args, **kwargs)
         if hasattr(self.__class__, '__schema__'):
-            self.validate(self)
+            self.validate(self, fail_fast=True)
 
     def __setitem__(self, key, value):
         if (hasattr(self, 'allowed') and self.allowed and
@@ -154,7 +154,52 @@ class MorpheusDict(dict):
         cls.required = set([k for k, v in definitions.items()
                             if v.required is True])
 
-    def validate(self, data):
+    @classmethod
+    def inspect(cls, data, fail_fast=False):
+        '''
+
+        Checks schema and validates data. Returns list of errors.
+
+        Call inspect if you want to check the data without raising and error.
+
+        :param fail_fast: if you want to return on the first error
+
+        '''
+        errors = []
+        existing = set(data.keys())
+        extras = existing - cls.allowed
+        if extras:
+            if len(extras) == 1:
+                msg = "'%s' is not a permitted attribute for a '%s'"
+            else:
+                msg = "%s are not permitted attributes for a '%s'"
+            errors.append(msg % (', '.join(extras), cls.__name__))
+            if fail_fast is True:
+                return errors
+
+        if cls.required:
+            missing = cls.required - set(data.keys())
+            if missing:
+                if len(missing) == 1:
+                    msg = "Missing required key '%s'" % missing.pop()
+                else:
+                    msg = "Missing required keys: %s" % ', '.join(missing)
+                errors.append(msg)
+                if fail_fast is True:
+                    return errors
+
+        for key in data.keys():
+            definition = cls.definitions[key]
+            if issubclass(definition.__class__, SchemaOp):
+                results = definition.execute(data, key, fail_fast=fail_fast)
+                if results:
+                    errors += results
+                    if fail_fast is True:
+                        return errors
+        return errors
+
+    @classmethod
+    def validate(cls, data, fail_fast=False):
         '''
 
         Checks schema and validates data. Raises error if errors exist.
@@ -163,27 +208,6 @@ class MorpheusDict(dict):
 
         '''
 
-        existing = set(data.keys())
-        extras = existing - self.allowed
-        if extras:
-            if len(extras) == 1:
-                msg = "'%s' is not a permitted attribute for a '%s'"
-            else:
-                msg = "%s are not permitted attributes for a '%s'"
-            raise AttributeError(msg % (', '.join(extras),
-                                        self.__class__.__name__))
-
-        if self.required:
-            missing = self.required - set(data.keys())
-            if missing:
-                if len(missing) == 1:
-                    raise ValidationError("Missing required key '%s'" %
-                                          missing.pop())
-                else:
-                    raise ValidationError("Missing required keys: %s" %
-                                          ', '.join(missing))
-
-        for key in data.keys():
-            definition = self.definitions[key]
-            if issubclass(definition.__class__, SchemaOp):
-                definition.execute(data, key)
+        errors = cls.inspect(data, fail_fast=fail_fast)
+        if errors:
+            raise ValidationError('. '.join(errors))
