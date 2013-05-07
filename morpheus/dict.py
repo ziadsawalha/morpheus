@@ -74,6 +74,11 @@ class MorpheusDict(dict):
                                  "'%s'" % (key, self.__class__.__name__))
         dict.__setitem__(self, self.__keytransform__(key), value)
 
+    def __delitem__(self, key):
+        if key in self.required:
+            raise ValidationError("Cannot remove required key '%s'" % key)
+        dict.__delitem__(self, key)
+
     @staticmethod
     def __keytransform__(key):
         return key

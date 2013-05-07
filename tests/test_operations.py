@@ -34,6 +34,15 @@ class TestOperations(unittest.TestCase):
         self.assertIn('must', obj)
         self.assertEqual(obj['must'], 8)
 
+    def test_is_required_delitem(self):
+        obj = Bar(must=8)
+
+        try:
+            del obj['must']
+            self.assertTrue(False)
+        except exceptions.ValidationError:
+            pass
+
     def test_is_required_validation(self):
         self.assertRaisesRegexp(exceptions.ValidationError, '', Bar)
 

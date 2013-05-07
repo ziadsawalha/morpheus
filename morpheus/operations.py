@@ -53,6 +53,11 @@ class as_of(SchemaOp):
     pass
 
 
+class is_required(SchemaOp):
+    ''' DOCS '''
+    pass
+
+
 class Defn(SchemaOp):
     ''' DOCS '''
     pass
