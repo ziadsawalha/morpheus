@@ -1,7 +1,7 @@
 # pylint: disable=C0103,C0111,R0903,R0904,W0212,W0232
 import unittest
 
-from morpheus import MorpheusDict, Defn
+from morpheus import MorpheusDict, Defn, exceptions
 from morpheus.dict import get_class_vars, normalize_definitions
 
 
@@ -81,8 +81,8 @@ class TestMorpheusDictSubclass(unittest.TestCase):
     def test_setitem(self):
         md = MDSubclass(id=1)
         expect = "'not_id' is not permitted on an object of type 'MDSubclass'"
-        self.assertRaisesRegexp(AttributeError, expect, md.__setitem__,
-                                "not_id", 1)
+        self.assertRaisesRegexp(exceptions.ValidationError, expect,
+                                md.__setitem__, "not_id", 1)
 
 
 if __name__ == '__main__':

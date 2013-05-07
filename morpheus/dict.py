@@ -84,8 +84,8 @@ class MorpheusDict(dict):
     def __setitem__(self, key, value):
         if (hasattr(self, 'allowed') and self.allowed and
                 key not in self.allowed):
-            raise AttributeError("'%s' is not permitted on an object of type "
-                                 "'%s'" % (key, self.__class__.__name__))
+            raise ValidationError("'%s' is not permitted on an object of type "
+                                  "'%s'" % (key, self.__class__.__name__))
         dict.__setitem__(self, self.__keytransform__(key), value)
 
     def __delitem__(self, key):
