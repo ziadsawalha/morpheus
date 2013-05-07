@@ -25,14 +25,32 @@ from morpheus.schema import Schema
 from morpheus.operations import SchemaOp, Defn
 
 
+def get_class_vars(cls):
+    '''Get unhidden variables defined on a class'''
+    return [name for name, obj in cls.__dict__.iteritems()
+            if not name.startswith("__") and not inspect.isroutine(obj)]
+
+
+def normalize_definitions(definitions):
+    '''Converts all definitions to Defn types'''
+    if definitions:
+        for key, definition in definitions.items():
+            if isinstance(definition, SchemaOp):
+                continue
+            definitions[key] = Defn(definition)
+    return definitions
+
+
 class MorpheusDictSubclassDetector(type):
     '''Metaclass for MorpheusDict to detect when MorpheusDict is subclassed'''
     def __new__(mcs, *args, **kwargs):
         new_type = type.__new__(mcs, *args, **kwargs)
+        new_type.definitions = new_type.get_schema_definitions()
+        new_type.parse_schema_definitions(new_type.definitions)
         register_yaml_representer(new_type)
         if args[0] != "MorpheusDict":
             MorpheusDict.__initsubclass__(new_type)
-        return type.__new__(mcs, *args, **kwargs)
+        return new_type
 
 
 class MorpheusDict(dict):
@@ -59,10 +77,6 @@ class MorpheusDict(dict):
     # dict emulation methods
     #
     def __init__(self, *args, **kwargs):
-        # TODO: do this only once, not on class init
-        self.definitions = self.get_schema_definitions()
-        self.parse_schema_definitions(self.definitions)
-
         dict.__init__(self, *args, **kwargs)
         if hasattr(self.__class__, '__schema__'):
             self.validate(self)
@@ -103,7 +117,9 @@ class MorpheusDict(dict):
         '''
         schema = getattr(cls, '__schema__', None) or {}
         item_definitions = {}
-        if isinstance(schema, Schema):
+        if schema is None:
+            return item_definitions
+        elif isinstance(schema, Schema):
             for key, value in schema.iteritems():
                 item_definitions[key] = value
         elif isinstance(schema, list):
@@ -118,7 +134,8 @@ class MorpheusDict(dict):
                 item_definitions = schema
             except TypeError:
                 raise TypeError("__schema__ must be an iterable list, dict, "
-                                "class or morpheus.Schema class")
+                                "class or morpheus.Schema class, not %s" %
+                                type(schema))
 
         return normalize_definitions(item_definitions)
 
@@ -170,19 +187,3 @@ class MorpheusDict(dict):
             definition = self.definitions[key]
             if issubclass(definition.__class__, SchemaOp):
                 definition.execute(data, key)
-
-
-def get_class_vars(cls):
-    '''Get unhidden variables defined on a class'''
-    return [name for name, obj in cls.__dict__.iteritems()
-            if not name.startswith("__") and not inspect.isroutine(obj)]
-
-
-def normalize_definitions(definitions):
-    '''Converts all definitions to Defn types'''
-    if definitions:
-        for key, definition in definitions.items():
-            if isinstance(definition, SchemaOp):
-                continue
-            definitions[key] = Defn(definition)
-    return definitions

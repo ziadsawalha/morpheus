@@ -32,11 +32,6 @@ class Yee(dict):
         status = basestring
 
 
-class Womp(dict):
-    ''' Fail '''
-    __schema__ = 2
-
-
 class TestInstantiation(unittest.TestCase):
     '''Test that we can define schema using the four methods above'''
     def test_schema_as_list(self):
@@ -56,7 +51,13 @@ class TestInstantiation(unittest.TestCase):
         self.assertEqual(md['id'], 1)
 
     def test_invalid_schema(self):
-        self.assertRaises(TypeError, Womp, id=1)
+        try:
+            class Womp(dict):
+                ''' Fail '''
+                __schema__ = 2
+            self.assertTrue(False, "Bad schema did not raise a TypeError")
+        except TypeError:
+            pass
 
 
 class TestSimpleValidation(unittest.TestCase):
