@@ -108,6 +108,9 @@ Ziad Sawalha (ziadsawalha) is the creator and current maintainer of Morpheus. Pu
 
 Before submitting a pull request, please ensure you have added/updated the appropriate tests (and that all existing tests still pass with your changes), and that your coding style follows PEP 8 and doesn't cause pyflakes to complain.
 
+rst doc generated from markdown with::
+
+    pandoc --from=markdown --to=rst --output=README.rst README.md
 
 ### Legal ###
 

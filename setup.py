@@ -19,7 +19,7 @@ setup(
     keywords="schema NoSQL validation migration",
     url="http://github.com/ziadsawalha/morpheus",
     packages=find_packages(exclude=['*.tests']),
-    long_description=read('README.md'),
+    long_description=read('README.rst'),
     classifiers=[
         "Development Status :: 1 - Planning",
         'Natural Language :: English',
