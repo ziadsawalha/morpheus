@@ -26,5 +26,33 @@ class TestAllowed(unittest.TestCase):
         self.assertListEqual(result, ['id', 'this-also'])
 
 
+class TestSchema(unittest.TestCase):
+
+    def test_none_schema(self):
+        class Foo(dict):
+            __schema__ = None
+        result = Foo({'id': 1})
+        self.assertDictEqual(result, {'id': 1})
+
+    def test_empty_dict_schema(self):
+        class Foo(dict):
+            __schema__ = {}
+        result = Foo({'id': 1})
+        self.assertDictEqual(result, {'id': 1})
+
+    def test_empty_list_schema(self):
+        class Foo(dict):
+            __schema__ = []
+        result = Foo({'id': 1})
+        self.assertDictEqual(result, {'id': 1})
+
+    def test_bad_rule(self):
+        class Foo(dict):
+            __schema__ = dict(
+                bad=is_required().made_up(),
+            )
+        self.assertRaises(SyntaxError, Foo)
+
+
 if __name__ == '__main__':
     unittest.main()

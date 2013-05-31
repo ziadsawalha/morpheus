@@ -1,7 +1,6 @@
 '''
 The main morpheus dict substitute class lives here: MorpheusDict
 '''
-import copy
 import inspect
 import types
 
@@ -117,9 +116,9 @@ class MorpheusDict(dict):
                        definitions of those items
 
         '''
-        schema = getattr(cls, '__schema__', None) or {}
+        schema = getattr(cls, '__schema__', None)
         item_definitions = {}
-        if schema is None:
+        if not schema:
             return item_definitions
         elif isinstance(schema, Schema):
             for key, value in schema.iteritems():
@@ -167,6 +166,7 @@ class MorpheusDict(dict):
         cls.required = cls.required.union(
             set([k for k, v in definitions.items() if v.required is True]))
 
+    # pylint: disable=E1101
     @classmethod
     def inspect(cls, data, fail_fast=False):
         '''
@@ -184,8 +184,8 @@ class MorpheusDict(dict):
             if key in cls.definitions:
                 definition = cls.definitions[key]
                 if issubclass(definition.__class__, SchemaOp):
-                    modified, results = definition.execute(dict(data), key,
-                                                           fail_fast=fail_fast)
+                    _, results = definition.execute(dict(data), key,
+                                                    fail_fast=fail_fast)
                     if results:
                         errors += results
                         if fail_fast is True:
@@ -193,7 +193,7 @@ class MorpheusDict(dict):
         # evaluate result
         existing = set(data.keys())
         extras = existing - cls.allowed
-        if extras:
+        if extras and len(cls.allowed) > 0:
             if len(extras) == 1:
                 msg = "'%s' is not a permitted attribute for a '%s'"
             else:

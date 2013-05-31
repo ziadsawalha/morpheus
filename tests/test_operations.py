@@ -19,7 +19,7 @@ class Foo(MorpheusDict):
 
 class Bar(MorpheusDict):
     __schema__ = dict(
-        must=ops.is_required()
+        must=ops.is_required(),
     )
 
 

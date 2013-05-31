@@ -94,26 +94,24 @@ class SchemaOp(object):
                         current[part] = current = {}
                     else:
                         current = current[part]
-                current[parts[-1]] = value
+                current[parts[-1]] = args[1]
                 modified = True
             elif command == 'read':
                 """Reads a value from a dict supporting a path as a key"""
                 parts = self.args[0].strip('/').split('/')
                 current = data
-                found = False
-                if len(parts) == 1:
-                    if key in current:
-                        found = True
-                else:
-                    found = True
-                    for part in parts[:-1]:
-                        if part not in current:
-                            break
-                        current = current[part]
-                        if not isinstance(current, dict):
-                            break
+                found = True
+                while parts:
+                    part = parts.pop(0)
+                    if not isinstance(current, dict):
+                        found = False
+                        break
+                    if part not in current:
+                        found = False
+                        break
+                    current = current[part]
                 if found is True:
-                    data[key] = current.get(parts[-1])
+                    data[key] = current
                     modified = True
             else:
                 raise SyntaxError("'%s' is not a recognized validation rule" %
@@ -158,5 +156,10 @@ class read(SchemaOp):
 
 
 class translate(SchemaOp):
+    ''' DOCS '''
+    pass
+
+
+class write(SchemaOp):
     ''' DOCS '''
     pass
