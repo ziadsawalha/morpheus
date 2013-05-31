@@ -87,6 +87,21 @@ Foo({})
 
 ```
 
+### Performance
+
+To test performance, run `python tests/test_performance.py`
+
+The current performance is ~14 times slower than native dict.
+
+Versus the following implementations:
+
+- Simple:   1392.72517321% (from 0.0004 to 0.006)
+- Subclass: 1358.45980888% (from 0.0004 to 0.006)
+- Mapping:   439.377796719% (from 0.001 to 0.006)
+- List:     10094.0655908% (from 0.0005 to 0.05)
+- Complex:  7229.4047619% (from 0.0008 to 0.06)
+
+
 ### Contributing ###
 
 Ziad Sawalha (ziadsawalha) is the creator and current maintainer of Morpheus. Pull requests are always welcome.
