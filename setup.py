@@ -6,12 +6,12 @@ def read(fname):
     '''Read a file's contents'''
     try:
         return open(os.path.join(os.path.dirname(__file__), fname)).read()
-    except:
+    except StandardError:
         return ""
 
 setup(
     name="morpheus",
-    version="0.0.2",
+    version="0.0.3",
     author="Ziad Sawalha",
     author_email="ziad@sawalha.com",
     description="Dict schema helper for schema-free projects",
