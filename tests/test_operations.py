@@ -2,7 +2,7 @@
 import unittest
 
 from morpheus import MorpheusDict, exceptions
-from morpheus.operations import as_of, is_replaced_by, is_required, is_type
+from morpheus import operations as ops
 
 
 class Foo(MorpheusDict):
@@ -10,17 +10,16 @@ class Foo(MorpheusDict):
         simple=int,
 
         status=basestring,
-        state=is_replaced_by('status'),
+        state=ops.is_replaced_by('status'),
 
-        boolean=is_type(bool),
-        chain=as_of(0.7).is_type(int)
-
+        boolean=ops.is_type(bool),
+        chain=ops.as_of(0.7).is_type(int),
     )
 
 
 class Bar(MorpheusDict):
     __schema__ = dict(
-        must=is_required()
+        must=ops.is_required()
     )
 
 

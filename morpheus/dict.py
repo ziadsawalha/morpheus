@@ -1,6 +1,7 @@
 '''
 The main morpheus dict substitute class lives here: MorpheusDict
 '''
+import copy
 import inspect
 import types
 
@@ -79,6 +80,7 @@ class MorpheusDict(dict):
     def __init__(self, *args, **kwargs):
         dict.__init__(self, *args, **kwargs)
         if hasattr(self.__class__, '__schema__'):
+            self.translate(self)
             self.validate(self, fail_fast=True)
 
     def __setitem__(self, key, value):
@@ -150,9 +152,20 @@ class MorpheusDict(dict):
         cls.required: all required keys
 
         '''
-        cls.allowed = set(definitions.keys())
-        cls.required = set([k for k, v in definitions.items()
-                            if v.required is True])
+        try:
+            if isinstance(cls.allowed, list):
+                cls.allowed = set(cls.allowed)
+        except AttributeError:
+            cls.allowed = set()
+        cls.allowed = cls.allowed.union(set(definitions.keys()))
+
+        try:
+            if isinstance(cls.required, list):
+                cls.required = set(cls.required)
+        except AttributeError:
+            cls.required = set()
+        cls.required = cls.required.union(
+            set([k for k, v in definitions.items() if v.required is True]))
 
     @classmethod
     def inspect(cls, data, fail_fast=False):
@@ -166,6 +179,18 @@ class MorpheusDict(dict):
 
         '''
         errors = []
+        # Execute transforms and evals first
+        for key in data.keys():
+            if key in cls.definitions:
+                definition = cls.definitions[key]
+                if issubclass(definition.__class__, SchemaOp):
+                    modified, results = definition.execute(dict(data), key,
+                                                           fail_fast=fail_fast)
+                    if results:
+                        errors += results
+                        if fail_fast is True:
+                            return errors
+        # evaluate result
         existing = set(data.keys())
         extras = existing - cls.allowed
         if extras:
@@ -187,15 +212,6 @@ class MorpheusDict(dict):
                 errors.append(msg)
                 if fail_fast is True:
                     return errors
-
-        for key in data.keys():
-            definition = cls.definitions[key]
-            if issubclass(definition.__class__, SchemaOp):
-                results = definition.execute(data, key, fail_fast=fail_fast)
-                if results:
-                    errors += results
-                    if fail_fast is True:
-                        return errors
         return errors
 
     @classmethod
@@ -211,3 +227,20 @@ class MorpheusDict(dict):
         errors = cls.inspect(data, fail_fast=fail_fast)
         if errors:
             raise ValidationError('. '.join(errors))
+
+    @classmethod
+    def translate(cls, data, target=None):
+        '''
+
+        Checks schema and executes all definitions.
+
+        If not target is specified, it will execute all definitions on data
+        itself.
+
+        '''
+        if target is None:
+            target = data
+        # Execute transforms and evals first
+        for key, definition in cls.definitions.items():
+            if issubclass(definition.__class__, SchemaOp):
+                definition.execute(target, key)
