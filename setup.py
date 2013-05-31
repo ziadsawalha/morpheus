@@ -11,7 +11,7 @@ def read(fname):
 
 setup(
     name="morpheus",
-    version="0.0.3",
+    version="0.0.5",
     author="Ziad Sawalha",
     author_email="ziad@sawalha.com",
     description="Dict schema helper for schema-free projects",
